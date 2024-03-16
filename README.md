@@ -18,3 +18,17 @@ Before you begin, export all of your google photos to google drive.
 ### Logs
 
 Errors are written to a file and stored in `tmp/error.log` when downloading the files
+
+### Running Locally
+
+You can run the download command with
+
+```
+go run cmd/download/*.go --help
+
+Usage of /tmp/go-build3572341578/b001/exe/files:
+  -directoryId string
+        The ID directory of your Google Takeout Folder
+  -dryRun
+        Performs a dry run (default true)
+```
