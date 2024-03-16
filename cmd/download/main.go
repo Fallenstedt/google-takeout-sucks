@@ -78,6 +78,8 @@ func main() {
 			fmt.Printf("downloading file: %s\n", driveFile.Name)
 			err := downloadFile(srv, driveFile)
 			if err != nil {
+				fmt.Printf("error downloading file: %s\n", driveFile.Name)
+
 				errCh <- fmt.Errorf("cannot download file %s - %s: %w", driveFile.Name, driveFile.Id, err)
 			} else {
 				resCh <- driveFile.Name

@@ -14,3 +14,7 @@ Before you begin, export all of your google photos to google drive.
    ![Image of google drive](images/drive-id.png)
 
 1. Run the `download` script with `go run cmd/download/main.go -directoryId=abc123`. By default, `dryRun` is set to true. You should see your files appear in the console
+
+### Logs
+
+Errors are written to a file and stored in `tmp/error.log` when downloading the files

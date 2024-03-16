@@ -42,7 +42,7 @@ func fetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *confi
 
 
 func downloadFile(srv *drive.Service, driveFile *drive.File) (error) {
-	resp, err := srv.Files.Get(driveFile.Id).Download()
+	resp, err := srv.Files.Get(driveFile.Id + "lol").Download()
 	if err != nil {
 		return err
 	}

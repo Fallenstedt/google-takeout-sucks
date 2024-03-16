@@ -10,8 +10,8 @@ import (
 
 
 func New(name string) *log.Logger {
-	logpath, err := filepath.Abs(fmt.Sprintf("/tmp/%s.log", name))
-	
+	logpath, err := filepath.Abs(fmt.Sprintf("tmp/%s.log", name))
+	fmt.Println(logpath)
 	if err != nil {
 		log.Fatalf("Unable to create absolute path: %v", err)
 	}
