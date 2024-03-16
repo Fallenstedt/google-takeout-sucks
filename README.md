@@ -1,10 +1,10 @@
 # Download google takeout photos
 
-Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of you data, all with this information loosely connected
+Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of your data, all with this information loosely connected
 
 I made this script to download all of my google photos so I can back it up onto a harddrive
 
-Before you begin, export all of your google photos to google drive.
+Before you begin, export all of your google photos to google drive using [Google Takeout](https://takeout.google.com/settings/takeout/custom/photos)
 
 ### Setup
 
