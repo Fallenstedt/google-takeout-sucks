@@ -1,3 +1,5 @@
+> 🚨 This is a work in progress
+
 # Download google takeout photos
 
 Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of your data, all with this information loosely connected
