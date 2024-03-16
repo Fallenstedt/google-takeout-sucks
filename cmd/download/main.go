@@ -2,73 +2,18 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"sync"
 
-	"golang.org/x/oauth2"
+	logger "github.com/Fallenstedt/google-photo-organizer/internal"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 )
 
-// Retrieve a token, saves the token, then returns the generated client.
-func getClient(config *oauth2.Config) *http.Client {
-	// The file token.json stores the user's access and refresh tokens, and is
-	// created automatically when the authorization flow completes for the first
-	// time.
-	tokFile := "token.json"
-	tok, err := tokenFromFile(tokFile)
-	if err != nil {
-		tok = getTokenFromWeb(config)
-		saveToken(tokFile, tok)
-	}
-	return config.Client(context.Background(), tok)
-}
-
-// Request a token from the web, then returns the retrieved token.
-func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
-
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code %v", err)
-	}
-
-	tok, err := config.Exchange(context.TODO(), authCode)
-	if err != nil {
-		log.Fatalf("Unable to retrieve token from web %v", err)
-	}
-	return tok
-}
-
-// Retrieves a token from a local file.
-func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	tok := &oauth2.Token{}
-	err = json.NewDecoder(f).Decode(tok)
-	return tok, err
-}
-
-// Saves a token to a file path.
-func saveToken(path string, token *oauth2.Token) {
-	fmt.Printf("Saving credential file to: %s\n", path)
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		log.Fatalf("Unable to cache oauth token: %v", err)
-	}
-	defer f.Close()
-	json.NewEncoder(f).Encode(token)
-}
 
 type config struct {
 	directoryId *string
@@ -94,7 +39,7 @@ func main() {
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, drive.DriveMetadataReadonlyScope)
+	config, err := google.ConfigFromJSON(b, drive.DriveMetadataReadonlyScope, drive.DriveReadonlyScope)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
@@ -112,36 +57,51 @@ func main() {
 	}
 
 
+	printFiles(r)
 	if *cfg.dryRun {
-		fmt.Println("Files:")
-		if len(r) == 0 {
-			fmt.Println("No files found.")
-		} else {
-			for _, i := range r {
-				fmt.Printf("%s (%s)\n", i.Name, i.Id)
+		return
+	}
+
+	resCh := make(chan string)
+	errCh := make(chan error)
+	doneCh := make(chan struct{})
+
+	wg := sync.WaitGroup{}
+
+	// Download all the files
+	for _, driveFile := range r {
+		wg.Add(1)
+		
+		go func (driveFile *drive.File)  {
+			defer wg.Done()
+
+			fmt.Printf("downloading file: %s\n", driveFile.Name)
+			err := downloadFile(srv, driveFile)
+			if err != nil {
+				errCh <- fmt.Errorf("cannot download file %s - %s: %w", driveFile.Name, driveFile.Id, err)
+			} else {
+				resCh <- driveFile.Name
 			}
+
+		}(driveFile)
+	}
+
+	// Wait for all files to be downloaded and saved to disk
+	go func ()  {
+		wg.Wait()
+		close(doneCh)
+	}()
+
+	errorLog := logger.New("error")
+	for {
+		select {
+		case err := <-errCh:
+			errorLog.Println(err)
+		case data := <- resCh:
+			fmt.Printf("file has been saved: %s\n", data)
+		case <-doneCh:
+			fmt.Println("done")
+			os.Exit(0)
 		}
 	}
-
-}
-
-
-func fetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *config) error {
-	q := fmt.Sprintf("'%s' in parents", *cfg.directoryId)
-
-	r, err :=  srv.Files.List().Q(q).PageSize(50).Fields("nextPageToken, files(id, name)").PageToken(token).Do()
-			
-	if err != nil {
-		return err
-	}
-
-	if len(r.Files) > 0 {
-		*res = append(*res, r.Files...)
-	}
-
-	if len(r.NextPageToken) > 0 {
-		return fetchFiles(res, r.NextPageToken, srv, cfg)
-	}
-
-	return nil
 }
