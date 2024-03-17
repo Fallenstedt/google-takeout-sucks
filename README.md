@@ -23,14 +23,16 @@ Errors are written to a file and stored in `tmp/error.log` when downloading the 
 
 ### Running Locally
 
-You can run the download command with
+You can run the download command with `go run cmd/download/*.go -directoryId={123abc} -dryRun=true -outDir=/absolute/path/to/destination/dir`
 
 ```
 go run cmd/download/*.go --help
 
-Usage of /tmp/go-build3572341578/b001/exe/files:
   -directoryId string
-        The ID directory of your Google Takeout Folder
+    	The ID directory of your Google Takeout Folder
   -dryRun
-        Performs a dry run (default true)
+    	Performs a dry run (default true)
+  -outDir string
+    	The absolute path for downloaded files (default ".")
+
 ```
