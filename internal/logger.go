@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 )
 
-
-
 func New(name string) *log.Logger {
 	logpath, err := filepath.Abs(fmt.Sprintf("tmp/%s.log", name))
 	fmt.Println(logpath)
@@ -17,14 +15,13 @@ func New(name string) *log.Logger {
 	}
 
 	file, err := os.Create(logpath)
-	
 
 	if err != nil {
 		log.Fatalf("Unable to create log file: %v", err)
 	}
 
-    instance := log.New(file, "", log.LstdFlags|log.Lshortfile)
-    instance.Println("LogFile : " + logpath)
+	instance := log.New(file, "", log.LstdFlags|log.Lshortfile)
+	instance.Println("LogFile : " + logpath)
 
 	return instance
 }

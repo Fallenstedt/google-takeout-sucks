@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/api/drive/v3"
 )
+
 func printFiles(r []*drive.File) {
 	fmt.Println("Files:")
 
@@ -19,12 +20,11 @@ func printFiles(r []*drive.File) {
 	}
 }
 
-
 func fetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *config) error {
 	q := fmt.Sprintf("'%s' in parents", *cfg.directoryId)
 
-	r, err :=  srv.Files.List().Q(q).PageSize(50).Fields("nextPageToken, files(id, name)").PageToken(token).Do()
-			
+	r, err := srv.Files.List().Q(q).PageSize(50).Fields("nextPageToken, files(id, name)").PageToken(token).Do()
+
 	if err != nil {
 		return err
 	}
@@ -40,9 +40,8 @@ func fetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *confi
 	return nil
 }
 
-
-func downloadFile(srv *drive.Service, driveFile *drive.File) (error) {
-	resp, err := srv.Files.Get(driveFile.Id + "lol").Download()
+func downloadFile(srv *drive.Service, driveFile *drive.File, cfg *config) error {
+	resp, err := srv.Files.Get(driveFile.Id).Download()
 	if err != nil {
 		return err
 	}
@@ -52,10 +51,12 @@ func downloadFile(srv *drive.Service, driveFile *drive.File) (error) {
 	if err != nil {
 		return err
 	}
-	
+
 	// TODO absolute path to file
 	// https://stackoverflow.com/questions/63218663/how-to-create-an-empty-file-in-golang-at-a-specified-path-lets-say-at-home-new
-	err = os.WriteFile(driveFile.Name, body, 0777)
+
+	location := fmt.Sprintf("%s/%s", *cfg.outDir, driveFile.Name)
+	err = os.WriteFile(location, body, 0777)
 	if err != nil {
 		return err
 	}
