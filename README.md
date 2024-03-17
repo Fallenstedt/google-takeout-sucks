@@ -1,6 +1,6 @@
 > 🚨 This is a work in progress
 
-# Download google takeout photos
+# Google Takeout Sucks
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/fallenstedt)
 
