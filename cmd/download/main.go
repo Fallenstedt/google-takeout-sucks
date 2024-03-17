@@ -63,14 +63,14 @@ func main() {
 		return
 	}
 
-	processCh := make(chan *drive.File, 5) // Only process 5 files at a time
+	processCh := make(chan *drive.File, 3) // Only process 3 files at a time
 	resCh := make(chan string)
 	errCh := make(chan error)
 	doneCh := make(chan struct{})
 
 	wg := sync.WaitGroup{}
 
-	//File the process channel
+	// Fill the process channel
 	// So each one will be processed when worker is available
 	go func() {
 		defer close(processCh)
