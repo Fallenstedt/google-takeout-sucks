@@ -23,6 +23,8 @@ Errors are written to a file and stored in `tmp/error.log` when downloading the 
 
 ### Running Locally
 
+You need `go 1.21.4` to run this project locally
+
 You can run the download command with `go run cmd/download/*.go -directoryId={123abc} -dryRun=true -outDir=/absolute/path/to/destination/dir`
 
 ```
