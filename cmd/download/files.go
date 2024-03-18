@@ -65,17 +65,16 @@ func downloadFile(srv *drive.Service, driveFile *drive.File, cfg *config) error 
 	return nil
 }
 
-
 func downloadWorker(
-	id int, 
-	processCh <-chan *drive.File, 
-	errCh chan<- error, 
-	resCh chan<- string, 
-	srv *drive.Service, 
+	id int,
+	processCh <-chan *drive.File,
+	errCh chan<- error,
+	resCh chan<- string,
+	srv *drive.Service,
 	cfg *config,
 	wg *sync.WaitGroup) {
 	for driveFile := range processCh {
-	
+
 		fmt.Printf("worker %d: downloading file: %s\n", id, driveFile.Name)
 		err := downloadFile(srv, driveFile, cfg)
 		if err != nil {

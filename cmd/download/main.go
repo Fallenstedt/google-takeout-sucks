@@ -49,7 +49,6 @@ func main() {
 		return
 	}
 
-
 	processCh := make(chan *drive.File, 3) // Only process 3 files at a time
 	resCh := make(chan string)
 	errCh := make(chan error)
@@ -72,7 +71,6 @@ func main() {
 		go downloadWorker(w, processCh, errCh, resCh, srv, cfg, &wg)
 	}
 
-	
 	// Wait for all files to be downloaded and saved to disk
 	go func() {
 		wg.Wait()

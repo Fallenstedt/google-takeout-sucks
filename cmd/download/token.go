@@ -69,7 +69,6 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-
 func newGoogleDriveService(ctx context.Context) (*drive.Service, error) {
 	b, err := os.ReadFile("credentials.json")
 	if err != nil {
