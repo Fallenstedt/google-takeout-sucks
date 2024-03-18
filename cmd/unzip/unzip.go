@@ -2,14 +2,10 @@ package main
 
 import (
 	"archive/zip"
-	"errors"
 	"io"
 	"os"
 	"path/filepath"
 )
-
-// Max zip file filename length
-const maxLength = 150
 
 // Given a source filename and a destination path, extract the ZIP archive
 func extract(zipFilename, destPath string) error {
@@ -57,10 +53,6 @@ func filterExtract(zipFilename, destPath string, filterFunc func(string) bool) e
 		if !filterFunc(finalPath) {
 			// Skip this file
 			continue
-		}
-
-		if len(archiveReader.Name) >= maxLength {
-			return errors.New("Too long filename: " + archiveReader.Name)
 		}
 
 		// Create all needed directories
