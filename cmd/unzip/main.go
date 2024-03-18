@@ -92,7 +92,7 @@ func run(cfg *config) {
 
 	for {
 		select {
-		case err := <- errCh:
+		case err := <-errCh:
 			errorLog.Println(err)
 		case data := <-resCh:
 			infoLog.Printf("extracted files from %s\n", data)
@@ -106,7 +106,7 @@ func run(cfg *config) {
 func unzipFile(absolutePathOfFile string, cfg *config) error {
 	infoLog.Printf("unzipping file %s\n", absolutePathOfFile)
 	filename := filepath.Base(absolutePathOfFile)
-	collisionSafeDir :=  strings.TrimSuffix(filename, filepath.Ext(filename)) 
+	collisionSafeDir := strings.TrimSuffix(filename, filepath.Ext(filename))
 	dst := filepath.Join(*cfg.outDir, collisionSafeDir)
 
 	infoLog.Printf("extracting %s to %s\n", absolutePathOfFile, dst)
