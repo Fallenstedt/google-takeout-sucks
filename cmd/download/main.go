@@ -9,9 +9,7 @@ import (
 	"sync"
 
 	logger "github.com/Fallenstedt/google-photo-organizer/internal"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
-	"google.golang.org/api/option"
 )
 
 type config struct {
@@ -35,19 +33,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	b, err := os.ReadFile("credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-
-	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, drive.DriveMetadataReadonlyScope, drive.DriveReadonlyScope)
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
-
-	srv, err := drive.NewService(ctx, option.WithHTTPClient(client))
+	srv, err := newGoogleDriveService(ctx)
 	if err != nil {
 		log.Fatalf("Unable to retrieve Drive client: %v", err)
 	}
@@ -85,14 +71,13 @@ func main() {
 		go downloadWorker(w, processCh, errCh, resCh, srv, cfg, &wg)
 	}
 
-	
 	// Wait for all files to be downloaded and saved to disk
 	go func() {
 		wg.Wait()
 		close(doneCh)
 	}()
 
-	errorLog := logger.New("error")
+	errorLog := logger.New("download error")
 	for {
 		select {
 		case err := <-errCh:
@@ -103,29 +88,5 @@ func main() {
 			fmt.Println("done")
 			os.Exit(0)
 		}
-	}
-}
-
-func downloadWorker(
-	id int, 
-	processCh <-chan *drive.File, 
-	errCh chan<- error, 
-	resCh chan<- string, 
-	srv *drive.Service, 
-	cfg *config,
-	wg *sync.WaitGroup) {
-	for driveFile := range processCh {
-	
-		fmt.Printf("worker %d: downloading file: %s\n", id, driveFile.Name)
-		err := downloadFile(srv, driveFile, cfg)
-		if err != nil {
-			fmt.Printf("error downloading file: %s\n", driveFile.Name)
-
-			errCh <- fmt.Errorf("cannot download file %s - %s: %w", driveFile.Name, driveFile.Id, err)
-		} else {
-			resCh <- driveFile.Name
-		}
-
-		wg.Done()
 	}
 }
