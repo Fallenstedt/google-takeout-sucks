@@ -3,20 +3,28 @@ package main
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"google.golang.org/api/drive/v3"
 )
 
-func printFiles(r []*drive.File) {
-	fmt.Println("Files:")
+type DownloadFileInput struct {
+	destination string
+	srv *drive.Service
+	driveFile *drive.File
+}
+
+func printFiles(r []*drive.File, printFn func(string)) {
 
 	if len(r) == 0 {
 		fmt.Println("No files found.")
 	} else {
 		for _, i := range r {
-			fmt.Printf("%s (%s)\n", i.Name, i.Id)
+			printFn(fmt.Sprintf("%s (%s)", i.Name, i.Id))
+			
 		}
 	}
 }
@@ -41,29 +49,32 @@ func fetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *confi
 	return nil
 }
 
-func downloadFile(srv *drive.Service, driveFile *drive.File, cfg *config) error {
-	resp, err := srv.Files.Get(driveFile.Id).Download()
+func downloadFileToDisk(input DownloadFileInput) error {
+	// Create the file
+	absdst := filepath.Join(input.destination, input.driveFile.Name)
+	out, err := os.Create(absdst)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create file %s: %w", input.destination, err)
+	}
+	defer out.Close();
+
+	// Fetch the file
+	resp, err := input.srv.Files.Get(input.driveFile.Id).Download()
+	if err != nil {
+		return err;
 	}
 	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("received bad status fetching zip: %s", resp.Status)
 	}
 
-	// TODO absolute path to file
-	// https://stackoverflow.com/questions/63218663/how-to-create-an-empty-file-in-golang-at-a-specified-path-lets-say-at-home-new
-
-	location := fmt.Sprintf("%s/%s", *cfg.outDir, driveFile.Name)
-	err = os.WriteFile(location, body, 0777)
+	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to copy response to destination: %w", err)
 	}
-
 	return nil
 }
+
 
 func downloadWorker(
 	id int,
@@ -73,18 +84,27 @@ func downloadWorker(
 	srv *drive.Service,
 	cfg *config,
 	wg *sync.WaitGroup) {
+	
+	defer wg.Done()
+
 	for driveFile := range processCh {
 
-		fmt.Printf("worker %d: downloading file: %s\n", id, driveFile.Name)
-		err := downloadFile(srv, driveFile, cfg)
-		if err != nil {
-			fmt.Printf("error downloading file: %s\n", driveFile.Name)
+		if *cfg.dryRun {
+			resCh <- driveFile.Name
+			return
+		}
 
+		err := downloadFileToDisk(DownloadFileInput{
+			srv: srv,
+			destination: *cfg.outDir,
+			driveFile: driveFile,
+		})
+
+		if err != nil {
 			errCh <- fmt.Errorf("cannot download file %s - %s: %w", driveFile.Name, driveFile.Id, err)
 		} else {
 			resCh <- driveFile.Name
 		}
 
-		wg.Done()
 	}
 }
