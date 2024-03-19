@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"sync"
 
 	logger "github.com/Fallenstedt/google-photo-organizer/internal"
@@ -17,6 +17,9 @@ type config struct {
 	dryRun      *bool
 	outDir      *string
 }
+
+var errorLog = logger.New("download error")
+var infoLog = logger.New("download info")
 
 func main() {
 
@@ -44,12 +47,11 @@ func main() {
 		log.Fatalf("Unable to retrieve files: %v", err)
 	}
 
-	printFiles(r)
-	if *cfg.dryRun {
-		return
-	}
-
-	processCh := make(chan *drive.File, 3) // Only process 3 files at a time
+	printFiles(r, func(s string) {
+		infoLog.Println(s)
+	})
+	
+	processCh := make(chan *drive.File)
 	resCh := make(chan string)
 	errCh := make(chan error)
 	doneCh := make(chan struct{})
@@ -61,13 +63,13 @@ func main() {
 	go func() {
 		defer close(processCh)
 		for _, driveFile := range r {
-			wg.Add(1)
 			processCh <- driveFile
 		}
 	}()
 
-	// Create 3 workers to download files
-	for w := 1; w <= 3; w++ {
+	// Create workers to download files
+	for w := 1; w <= runtime.NumCPU(); w++ {
+		wg.Add(1)
 		go downloadWorker(w, processCh, errCh, resCh, srv, cfg, &wg)
 	}
 
@@ -77,15 +79,14 @@ func main() {
 		close(doneCh)
 	}()
 
-	errorLog := logger.New("download error")
 	for {
 		select {
 		case err := <-errCh:
 			errorLog.Println(err)
 		case data := <-resCh:
-			fmt.Printf("file has been saved: %s\n", data)
+			infoLog.Printf("file has been saved: %s\n", data)
 		case <-doneCh:
-			fmt.Println("done")
+			infoLog.Println("done")
 			os.Exit(0)
 		}
 	}
