@@ -21,22 +21,20 @@ Before you begin, export all of your google photos to google drive using [Google
 
 ### Logs
 
-Errors are written to a file and stored in `tmp/error.log` when downloading the files
+Error and info logs are written to a file and stored in `tmp/*.log` when running a script
 
-### Running Locally
+### Downloading all of my Google Takeout files
 
-You need `go 1.21.4` to run this project locally
-
-You can run the download command with `go run cmd/download/*.go -directoryId={123abc} -dryRun=true -outDir=/absolute/path/to/destination/dir`
+Run the following command locally after setting up the project. When you are confident everything is setup correctly, set `dryRun` to false.
 
 ```
-go run cmd/download/*.go --help
+go run cmd/download/*.go -directoryId={GoogleTakeout Directory ID} -dryRun=true -outDir={/absolute/path/to/destination/directory}
+```
 
-  -directoryId string
-    	The ID directory of your Google Takeout Folder
-  -dryRun
-    	Performs a dry run (default true)
-  -outDir string
-    	The absolute path for downloaded files (default ".")
+### Unzipping all of my Google Takeout files
 
+After downloading all of your files, you can unzip them all. When you are confident everything is setup correctly, set `dryRun` to false.
+
+```
+go run cmd/unzip/*.go -source=/absolute/path/to/directory/with/zipfiles -out=/absolute/path/for/unizpped/files -dryRun=true
 ```
