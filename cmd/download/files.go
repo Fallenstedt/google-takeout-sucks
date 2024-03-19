@@ -13,8 +13,8 @@ import (
 
 type DownloadFileInput struct {
 	destination string
-	srv *drive.Service
-	driveFile *drive.File
+	srv         *drive.Service
+	driveFile   *drive.File
 }
 
 func printFiles(r []*drive.File, printFn func(string)) {
@@ -24,7 +24,7 @@ func printFiles(r []*drive.File, printFn func(string)) {
 	} else {
 		for _, i := range r {
 			printFn(fmt.Sprintf("%s (%s)", i.Name, i.Id))
-			
+
 		}
 	}
 }
@@ -56,12 +56,12 @@ func downloadFileToDisk(input DownloadFileInput) error {
 	if err != nil {
 		return fmt.Errorf("unable to create file %s: %w", input.destination, err)
 	}
-	defer out.Close();
+	defer out.Close()
 
 	// Fetch the file
 	resp, err := input.srv.Files.Get(input.driveFile.Id).Download()
 	if err != nil {
-		return err;
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -75,7 +75,6 @@ func downloadFileToDisk(input DownloadFileInput) error {
 	return nil
 }
 
-
 func downloadWorker(
 	id int,
 	processCh <-chan *drive.File,
@@ -84,7 +83,7 @@ func downloadWorker(
 	srv *drive.Service,
 	cfg *config,
 	wg *sync.WaitGroup) {
-	
+
 	defer wg.Done()
 
 	for driveFile := range processCh {
@@ -95,9 +94,9 @@ func downloadWorker(
 		}
 
 		err := downloadFileToDisk(DownloadFileInput{
-			srv: srv,
+			srv:         srv,
 			destination: *cfg.outDir,
-			driveFile: driveFile,
+			driveFile:   driveFile,
 		})
 
 		if err != nil {

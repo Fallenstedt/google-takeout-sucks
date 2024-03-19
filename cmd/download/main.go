@@ -50,7 +50,7 @@ func main() {
 	printFiles(r, func(s string) {
 		infoLog.Println(s)
 	})
-	
+
 	processCh := make(chan *drive.File)
 	resCh := make(chan string)
 	errCh := make(chan error)
