@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func filterOut(path string, ext string, info os.FileInfo) bool {
@@ -12,7 +13,10 @@ func filterOut(path string, ext string, info os.FileInfo) bool {
 		return true
 	}
 
-	if ext != "" && filepath.Ext(path) != ext {
+	filepathExtension := strings.ToLower(filepath.Ext(path))
+
+
+	if ext != "" && filepathExtension != strings.ToLower(ext) {
 		return true
 	}
 

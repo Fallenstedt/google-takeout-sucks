@@ -3,11 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	logger "github.com/Fallenstedt/google-photo-organizer/internal"
 )
+
+var infoLog = logger.New("walk info")
+var errorLog = logger.New("walk error")
 
 type config struct {
 	ext  string // extension to filter out
@@ -17,7 +21,7 @@ type config struct {
 func main() {
 	root := flag.String("root", ".", "Root directory to start")
 	list := flag.Bool("list", false, "List files only")
-	ext := flag.String("ext", "", "File extension to filter out")
+	ext := flag.String("ext", "", "File extension to look for")
 	flag.Parse()
 
 	c := config{
@@ -25,13 +29,13 @@ func main() {
 		list: *list,
 	}
 
-	if err := run(*root, os.Stdout, c); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if err := run(*root, c); err != nil {
+		fmt.Fprintln(errorLog.Writer(), err)
 		os.Exit(1)
 	}
 }
 
-func run(root string, out io.Writer, cfg config) error {
+func run(root string, cfg config) error {
 	return filepath.Walk(root,
 		func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
@@ -43,10 +47,10 @@ func run(root string, out io.Writer, cfg config) error {
 			}
 
 			if cfg.list {
-				return listFile(path, out)
+				return listFile(path, infoLog.Writer())
 			}
 
-			return listFile(path, out)
+			return listFile(path, infoLog.Writer())
 		},
 	)
 }
