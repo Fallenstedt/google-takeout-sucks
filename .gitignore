@@ -2,3 +2,4 @@ credentials.json
 token.json
 tmp.txt
 tmp/*.log
+.vscode
