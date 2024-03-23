@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -18,7 +17,7 @@ func filterOut(path string, ext string, info os.FileInfo, exclude bool) bool {
 
 	if ext != "" {
 		if !exclude {
-			if  filepathExtension != strings.ToLower(ext) {
+			if filepathExtension != strings.ToLower(ext) {
 				return true
 			}
 		}
@@ -33,12 +32,7 @@ func filterOut(path string, ext string, info os.FileInfo, exclude bool) bool {
 	return false
 }
 
-func listFile(path string, out io.Writer) error {
-	_, err := fmt.Fprintln(out, path)
-	return err
-}
-
-func walkRootForFiles(root string, cfg config, ext string, exclude bool) (*[]string, error) {
+func walkRootForFiles(root string, ext string, exclude bool) (*[]string, error) {
 	files := new([]string)
 	err := filepath.Walk(root,
 		func(path string, info fs.FileInfo, err error) error {
@@ -50,14 +44,13 @@ func walkRootForFiles(root string, cfg config, ext string, exclude bool) (*[]str
 				return nil
 			}
 
-			if cfg.dryRun {
-				return listFile(path, infoLog.Writer())
+			// Only get photos which are from Google photos "Photos from XXXX" albums.
+			if strings.Contains(path, "Photos from") {
+				*files = append(*files, path)
 			}
 
-			*files = append(*files, path)
 			return nil
 		},
 	)
 	return files, err
 }
-

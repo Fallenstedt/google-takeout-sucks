@@ -1,12 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
+var ErrYearNotFound = errors.New("could not find year for file")
+
 type MediaFile struct {
-	Path string
+	Path     string
 	Filename string
 }
 
@@ -15,8 +19,25 @@ func NewMediaFile(path string) MediaFile {
 
 	return MediaFile{
 		Filename: filename,
-		Path: path,
+		Path:     path,
 	}
+}
+
+func (m *MediaFile) Year() (string, error) {
+
+	splitlist := strings.Split(m.Path, "/")
+
+	for _, d := range splitlist {
+		if strings.Contains(d, "Photos from") {
+
+			yearSlice := strings.Split(d, " ")
+			year := yearSlice[len(yearSlice)-1]
+
+			return year, nil
+		}
+	}
+
+	return "", ErrYearNotFound
 }
 
 func (m *MediaFile) String() string {
