@@ -100,6 +100,8 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 	go func() {
 		wg.Wait()
 		close(doneCh)
+		close(errCh)
+		close(resCh)
 	}()
 
 	for {
