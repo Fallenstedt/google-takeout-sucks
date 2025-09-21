@@ -72,8 +72,6 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 		errorLog.Fatalf("No files found for downloading")
 	}
 
-
-
 	processCh := make(chan *drive.File)
 	resCh := make(chan string)
 	errCh := make(chan error)
