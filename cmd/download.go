@@ -12,20 +12,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 var downloadErrorLog = logger.New("download error")
 var downloadInfoLog = logger.New("download info")
-
 
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "Download your google takeout zip files from google drive",
 	Run: func(cmd *cobra.Command, args []string) {
-		
-		dryRun, err := cmd.Flags().GetBool("dryRun");
-		if (err != nil) {
-			downloadErrorLog.Printf("Error finding dryRun flag: %e", err);
+
+		dryRun, err := cmd.Flags().GetBool("dryRun")
+		if err != nil {
+			downloadErrorLog.Printf("Error finding dryRun flag: %e", err)
 			return
 		}
 
@@ -44,21 +42,19 @@ var downloadCmd = &cobra.Command{
 		cfg := &download.Config{
 			DirectoryId: &directoryId,
 			OutDir:      &outDir,
-			DryRun: &dryRun,
+			DryRun:      &dryRun,
 		}
 
-
 		downloadInfoLog.Println("Downloading google takeout zip files from google drive...")
-		
 
 		downloadFiles(cmd, cfg)
-	},	
+	},
 }
-
 
 func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 
-	srv, err := download.NewGoogleDriveService(cmd.Context()); if err != nil {
+	srv, err := download.NewGoogleDriveService(cmd.Context())
+	if err != nil {
 		downloadErrorLog.Fatalf("Unable to retrieve Drive client: %v", err)
 	}
 
@@ -68,7 +64,7 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 		downloadErrorLog.Fatalf("Unable to retrieve files: %v", err)
 	}
 
-	if (len(r) == 0) {
+	if len(r) == 0 {
 		downloadErrorLog.Fatalf("No files found for downloading")
 	}
 
@@ -113,7 +109,6 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 			os.Exit(0)
 		}
 	}
-
 
 }
 

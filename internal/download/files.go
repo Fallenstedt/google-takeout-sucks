@@ -17,7 +17,6 @@ type DownloadFileInput struct {
 	driveFile   *drive.File
 }
 
-
 func FetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *Config) error {
 	q := fmt.Sprintf("'%s' in parents", *cfg.DirectoryId)
 
@@ -37,7 +36,6 @@ func FetchFiles(res *[]*drive.File, token string, srv *drive.Service, cfg *Confi
 
 	return nil
 }
-
 
 func DownloadWorker(
 	id int,
@@ -71,7 +69,6 @@ func DownloadWorker(
 
 	}
 }
-
 
 func downloadFileToDisk(input DownloadFileInput) error {
 	// Create the file

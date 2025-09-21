@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-
-
 func UnzipFile(absolutePathOfFile string, cfg *Config) error {
 	filename := filepath.Base(absolutePathOfFile)
 	collisionSafeDir := strings.TrimSuffix(filename, filepath.Ext(filename))
@@ -62,7 +60,6 @@ func GetZipFilesFromSourceDir(sourceDir *string, filepaths *[]string) error {
 
 	})
 }
-
 
 // Given a source filename and a destination path, extract the ZIP archive
 func extract(zipFilename, destPath string) error {

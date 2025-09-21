@@ -14,7 +14,6 @@ import (
 	"google.golang.org/api/option"
 )
 
-
 func NewGoogleDriveService(ctx context.Context) (*drive.Service, error) {
 	b, err := os.ReadFile("credentials.json")
 	if err != nil {
@@ -30,7 +29,6 @@ func NewGoogleDriveService(ctx context.Context) (*drive.Service, error) {
 
 	return drive.NewService(ctx, option.WithHTTPClient(client))
 }
-
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {

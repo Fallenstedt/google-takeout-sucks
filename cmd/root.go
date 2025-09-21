@@ -13,7 +13,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "takeout",
 	Short: "Google takeout sucks",
-	Long: `Get your massive zip files out of google drive because google takeout sucks.`,
+	Long:  `Get your massive zip files out of google drive because google takeout sucks.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -38,5 +38,3 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 }
-
-

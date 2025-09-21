@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"os"
 	"runtime"
 	"sync"
 
@@ -20,12 +20,11 @@ var errorLog = logger.New("unzip error")
 var unzipCmd = &cobra.Command{
 	Use:   "unzip",
 	Short: "Unzips zip files",
-	Long: `This will unzip zip files found in a directory`,
+	Long:  `This will unzip zip files found in a directory`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("unzip called")
-		dryRun, err := cmd.Flags().GetBool("dryRun");
-		if (err != nil) {
-			errorLog.Printf("Error finding dryRun flag: %e", err);
+		dryRun, err := cmd.Flags().GetBool("dryRun")
+		if err != nil {
+			errorLog.Printf("Error finding dryRun flag: %e", err)
 			return
 		}
 
@@ -43,12 +42,11 @@ var unzipCmd = &cobra.Command{
 
 		cfg := &unzip.Config{
 			SourceDir: &source,
-			OutDir:      &outDir,
-			DryRun: &dryRun,
+			OutDir:    &outDir,
+			DryRun:    &dryRun,
 		}
 
 		infoLog.Println("Unzipping files")
-		
 
 		unzipFiles(cfg)
 	},
@@ -100,7 +98,17 @@ func unzipFiles(cfg *unzip.Config) {
 		close(doneCh)
 	}()
 
-
+	for {
+		select {
+		case err := <-errCh:
+			errorLog.Println(err)
+		case data := <-resCh:
+			infoLog.Printf("file has been saved: %s\n", data)
+		case <-doneCh:
+			infoLog.Println("done")
+			os.Exit(0)
+		}
+	}
 }
 
 func init() {
