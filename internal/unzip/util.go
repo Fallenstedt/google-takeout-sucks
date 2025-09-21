@@ -1,11 +1,68 @@
-package main
+package unzip
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+
+
+func UnzipFile(absolutePathOfFile string, cfg *Config) error {
+	filename := filepath.Base(absolutePathOfFile)
+	collisionSafeDir := strings.TrimSuffix(filename, filepath.Ext(filename))
+	dst := filepath.Join(*cfg.OutDir, collisionSafeDir)
+
+	if *cfg.DryRun {
+		return nil
+	}
+
+	err := extract(absolutePathOfFile, dst)
+	if err != nil {
+		return fmt.Errorf("unable to extract files from zip %s: %w", absolutePathOfFile, err)
+	}
+	return nil
+}
+
+func GetZipFilesFromSourceDir(sourceDir *string, filepaths *[]string) error {
+
+	return filepath.WalkDir(*sourceDir, func(path string, d fs.DirEntry, err error) error {
+
+		if err != nil {
+			return fmt.Errorf("error walking directory %s: %w ", path, err)
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		if !d.IsDir() {
+			fileinfo, err := d.Info()
+			if err != nil {
+				return fmt.Errorf("error getting info of file %s: %w", path, err)
+			}
+
+			extension := filepath.Ext(fileinfo.Name())
+
+			if extension != ".zip" {
+				return fmt.Errorf("%s is not a zip file, move out of the directory", fileinfo.Name())
+			}
+
+			*filepaths = append(*filepaths, path)
+
+			return nil
+
+		}
+
+		return nil
+
+	})
+}
+
 
 // Given a source filename and a destination path, extract the ZIP archive
 func extract(zipFilename, destPath string) error {

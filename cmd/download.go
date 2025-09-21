@@ -13,8 +13,8 @@ import (
 )
 
 
-var errorLog = logger.New("download error")
-var infoLog = logger.New("download info")
+var downloadErrorLog = logger.New("download error")
+var downloadInfoLog = logger.New("download info")
 
 
 // downloadCmd represents the download command
@@ -25,19 +25,19 @@ var downloadCmd = &cobra.Command{
 		
 		dryRun, err := cmd.Flags().GetBool("dryRun");
 		if (err != nil) {
-			errorLog.Printf("Error finding dryRun flag: %e", err);
+			downloadErrorLog.Printf("Error finding dryRun flag: %e", err);
 			return
 		}
 
 		directoryId, err := cmd.Flags().GetString("directoryId")
 		if err != nil || directoryId == "" {
-			errorLog.Println("Error: --directoryId is required")
+			downloadErrorLog.Println("Error: --directoryId is required")
 			return
 		}
 
 		outDir, err := cmd.Flags().GetString("outDir")
 		if err != nil || outDir == "" {
-			errorLog.Println("Error: --outDir is required")
+			downloadErrorLog.Println("Error: --outDir is required")
 			return
 		}
 
@@ -48,7 +48,7 @@ var downloadCmd = &cobra.Command{
 		}
 
 
-		infoLog.Println("Downloading google takeout zip files from google drive...")
+		downloadInfoLog.Println("Downloading google takeout zip files from google drive...")
 		
 
 		downloadFiles(cmd, cfg)
@@ -59,17 +59,17 @@ var downloadCmd = &cobra.Command{
 func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 
 	srv, err := download.NewGoogleDriveService(cmd.Context()); if err != nil {
-		errorLog.Fatalf("Unable to retrieve Drive client: %v", err)
+		downloadErrorLog.Fatalf("Unable to retrieve Drive client: %v", err)
 	}
 
 	var r []*drive.File
 	err = download.FetchFiles(&r, "", srv, cfg)
 	if err != nil {
-		errorLog.Fatalf("Unable to retrieve files: %v", err)
+		downloadErrorLog.Fatalf("Unable to retrieve files: %v", err)
 	}
 
 	if (len(r) == 0) {
-		errorLog.Fatalf("No files found for downloading")
+		downloadErrorLog.Fatalf("No files found for downloading")
 	}
 
 	processCh := make(chan *drive.File)
@@ -105,11 +105,11 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 	for {
 		select {
 		case err := <-errCh:
-			errorLog.Println(err)
+			downloadErrorLog.Println(err)
 		case data := <-resCh:
-			infoLog.Printf("file has been saved: %s\n", data)
+			downloadInfoLog.Printf("file has been saved: %s\n", data)
 		case <-doneCh:
-			infoLog.Println("done")
+			downloadInfoLog.Println("done")
 			os.Exit(0)
 		}
 	}
