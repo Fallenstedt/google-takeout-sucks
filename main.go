@@ -1,9 +1,6 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package main
 
-import "github.com/Fallenstedt/google-photo-organizer/cmd"
+import "github.com/Fallenstedt/google-takeout-sucks/cmd"
 
 func main() {
 	cmd.Execute()

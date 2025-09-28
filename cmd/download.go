@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"sync"
 
-	logger "github.com/Fallenstedt/google-photo-organizer/internal"
-	download "github.com/Fallenstedt/google-photo-organizer/internal/download"
+	logger "github.com/Fallenstedt/google-takeout-sucks/internal"
+	download "github.com/Fallenstedt/google-takeout-sucks/internal/download"
 	"google.golang.org/api/drive/v3"
 
 	"github.com/spf13/cobra"

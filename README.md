@@ -4,11 +4,11 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/fallenstedt)
 
-Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of your data, all with this information loosely connected
+Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of your data, and it sucks downloading it if these files are 50GB.
 
-I made this script to download all of my google photos so I can back it up onto a harddrive
+I made this script to download all of my stuff from Google Takeout
 
-Before you begin, export all of your google photos to google drive using [Google Takeout](https://takeout.google.com/settings/takeout/custom/photos)
+Before you begin, export all of your google photos to google drive using [Google Takeout](https://takeout.google.com/settings/takeout/custom/photos).
 
 ### Setup
 

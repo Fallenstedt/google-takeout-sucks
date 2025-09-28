@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -8,8 +5,8 @@ import (
 	"runtime"
 	"sync"
 
-	logger "github.com/Fallenstedt/google-photo-organizer/internal"
-	"github.com/Fallenstedt/google-photo-organizer/internal/unzip"
+	logger "github.com/Fallenstedt/google-takeout-sucks/internal"
+	"github.com/Fallenstedt/google-takeout-sucks/internal/unzip"
 	"github.com/spf13/cobra"
 )
 
