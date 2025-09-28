@@ -110,7 +110,7 @@ func filterExtract(zipFilename, destPath string, filterFunc func(string) bool) e
 		}
 
 		// Create all needed directories
-		if os.MkdirAll(filepath.Dir(finalPath), 0755) != nil {
+		if err = os.MkdirAll(filepath.Dir(finalPath), 0755); err != nil {
 			return err
 		}
 
