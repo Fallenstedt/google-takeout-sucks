@@ -1,8 +1,9 @@
-module github.com/Fallenstedt/google-photo-organizer
+module github.com/Fallenstedt/google-takeout-sucks
 
 go 1.21.4
 
 require (
+	github.com/spf13/cobra v1.9.1
 	golang.org/x/oauth2 v0.18.0
 	google.golang.org/api v0.170.0
 )
@@ -19,6 +20,8 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.2 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
