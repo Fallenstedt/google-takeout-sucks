@@ -1,26 +1,132 @@
-> 🚨 This is a work in progress
-
-# Google Takeout Sucks
+# google-takeout-sucks
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/fallenstedt)
 
-Google Takeout allows you to generate zip files of your google data. The problem is that it will generate hundreds of zip files of your data, and it sucks downloading it if these files are 50GB.
+A command-line tool for downloading Google Takeout exports from Google Drive.
 
-I made this script to download all of my stuff from Google Takeout
+Google Takeout often splits exports into many ZIP files. Downloading them manually through a browser is slow, error-prone, and difficult to resume. This tool automates downloading all Takeout files directly from Google Drive.
 
-Before you begin, export all of your google photos to google drive using [Google Takeout](https://takeout.google.com/settings/takeout/custom/photos).
+## Why This Exists
 
-### Setup
+When exporting large datasets, Google Takeout:
 
-1. Use Google takeout to export zip files to your Google Drive.
+- Splits data into many ZIP archives
 
-1. Install the script with `go install ...` Optionally, build with `go build ...`
+- Requires manual downloads for each file
 
-1. Run `takeout login`. This will fetch an access token to READ your google drive files. This is necessary to download all of your Google takeout files to your harddrive
+- Provides no way to resume failed downloads
 
-1. Copy the directory ID of the google takeout folder in google drive. This can be found in the URL when viewing the Takeout folder in google drive. `drive.google.com/drive/folders/{really long id....}`
-   ![Image of google drive](images/drive-id.png)
+- Expires download links
 
-1. Run the `takeout download --directoryId=<direcotryId> --outDir=<absolute/path/to/save/files>`. By default, `--dryRun` is set to false.
+If you choose “Export to Google Drive” when creating a Takeout, Google places all ZIP files into a Drive folder. This tool downloads everything from that folder automatically.
 
-1. You can unzip all of the zip files with `takeout unzip --source=<absolute/path/to/zipfiles> --outDir=<absolute/path/to/unzip/files`. By default `--dryRun` is set to false
+## Authentication
+
+Authentication only occurs when running the download command.
+
+This project uses a separate, open-source authentication service:
+
+https://github.com/Fallenstedt/google-takeout-sucks-auth
+
+When you run the download command:
+
+1. A browser window opens
+1. You sign in with Google using the auth service
+1. Google returns an OAuth access token
+1. You paste the token into the terminal
+1. The tool uses the token to download your files
+
+Only read-only Google Drive access is requested.
+No files are modified or deleted.
+
+## Installation
+
+```
+go install github.com/Fallenstedt/google-takeout-sucks@latest
+```
+
+Or build from source:
+
+```
+git clone https://github.com/Fallenstedt/google-takeout-sucks.git
+cd google-takeout-sucks
+go build
+```
+
+## Usage
+
+1. Create a Google Takeout Export
+
+Go to Google Takeout
+
+Select the services you want to export
+
+Choose Export to Google Drive
+
+Wait for the export to finish
+
+Google will create a folder in your Drive containing the ZIP files.
+
+2. Get the Google Drive Folder ID
+
+Open Google Drive in your browser
+
+Open the folder that contains your Takeout files
+
+Look at the URL in the address bar
+
+The folder ID is the long string after /folders/
+
+Example:
+
+```
+https://drive.google.com/drive/folders/1MLFBDprqxzMp4zgN_1PPpRABdBYnHfn0
+```
+
+Folder ID:
+
+```
+1MLFBDprqxzMp4zgN_1PPpRABdBYnHfn0
+```
+
+3. Download the Files
+
+Run:
+
+```
+google-takeout-sucks download --directoryId <FOLDER_ID> --outDir <ABSOLUTE_PATH_TO_OUTPUT_DIR>
+```
+
+The tool will:
+
+- Open a browser to authenticate
+- Prompt you to paste the access token
+- Download all ZIP files from the folder
+
+4. Unzip all the files
+
+If you'd like to bulk unzip files, you can use the following `unzip` command
+
+Run:
+
+```
+google-takeout-sucks unzip --source <SOURCE_DIR_CONTAINING_ALL_ZIP_FIELS> --outDir <OUTPUT_DIR_FOR_UNZIPPED_FILES>
+```
+
+## Security and Privacy
+
+Uses OAuth 2.0 access tokens
+
+Requests read-only Google Drive access
+
+Does not store credentials
+
+Does not modify or delete Google data
+
+You can revoke access at any time from your Google Account security settings.
+
+## Notes
+
+This tool is intentionally simple and focused on one task: downloading Google Takeout exports without manual browser downloads.
+
+Issues and contributions are welcome.

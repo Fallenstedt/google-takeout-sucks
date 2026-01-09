@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -95,7 +94,7 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 	}()
 
 
-	fmt.Printf("Saving files to %s\n", *cfg.OutDir)
+	log.Printf("Saving files to %s\n", *cfg.OutDir)
 	for {
 		select {
 		case err := <-errCh:
