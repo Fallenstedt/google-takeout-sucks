@@ -1,19 +1,17 @@
 package cmd
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"sync"
 
-	logger "github.com/Fallenstedt/google-takeout-sucks/internal"
 	download "github.com/Fallenstedt/google-takeout-sucks/internal/download"
 	"google.golang.org/api/drive/v3"
 
 	"github.com/spf13/cobra"
 )
-
-var downloadErrorLog = logger.New("download error")
-var downloadInfoLog = logger.New("download info")
 
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
@@ -23,19 +21,19 @@ var downloadCmd = &cobra.Command{
 
 		dryRun, err := cmd.Flags().GetBool("dryRun")
 		if err != nil {
-			downloadErrorLog.Printf("Error finding dryRun flag: %e", err)
+			log.Printf("Error finding dryRun flag: %e", err)
 			return
 		}
 
 		directoryId, err := cmd.Flags().GetString("directoryId")
 		if err != nil || directoryId == "" {
-			downloadErrorLog.Println("Error: --directoryId is required")
+			log.Println("Error: --directoryId is required")
 			return
 		}
 
 		outDir, err := cmd.Flags().GetString("outDir")
 		if err != nil || outDir == "" {
-			downloadErrorLog.Println("Error: --outDir is required")
+			log.Println("Error: --outDir is required")
 			return
 		}
 
@@ -45,8 +43,6 @@ var downloadCmd = &cobra.Command{
 			DryRun:      &dryRun,
 		}
 
-		downloadInfoLog.Println("Downloading google takeout zip files from google drive...")
-
 		downloadFiles(cmd, cfg)
 	},
 }
@@ -55,17 +51,17 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 
 	srv, err := download.NewGoogleDriveService(cmd.Context())
 	if err != nil {
-		downloadErrorLog.Fatalf("Unable to retrieve Drive client: %v", err)
+		log.Fatalf("Unable to retrieve Drive client: %v", err)
 	}
 
 	var r []*drive.File
 	err = download.FetchFiles(&r, "", srv, cfg)
 	if err != nil {
-		downloadErrorLog.Fatalf("Unable to retrieve files: %v", err)
+		log.Fatalf("Unable to retrieve files: %v", err)
 	}
 
 	if len(r) == 0 {
-		downloadErrorLog.Fatalf("No files found for downloading")
+		log.Fatalf("No files found for downloading")
 	}
 
 	processCh := make(chan *drive.File)
@@ -98,14 +94,20 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 		close(resCh)
 	}()
 
+
+	fmt.Printf("Saving files to %s\n", *cfg.OutDir)
 	for {
 		select {
 		case err := <-errCh:
-			downloadErrorLog.Println(err)
+			if err != nil {
+				log.Println(err)
+			}
 		case data := <-resCh:
-			downloadInfoLog.Printf("file has been saved: %s\n", data)
+			if len(data) > 0 {
+				log.Printf("file has been saved: %s\n", data)
+			}
 		case <-doneCh:
-			downloadInfoLog.Println("done")
+			log.Println("done")
 			os.Exit(0)
 		}
 	}

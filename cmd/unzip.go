@@ -1,17 +1,14 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"runtime"
 	"sync"
 
-	logger "github.com/Fallenstedt/google-takeout-sucks/internal"
 	"github.com/Fallenstedt/google-takeout-sucks/internal/unzip"
 	"github.com/spf13/cobra"
 )
-
-var infoLog = logger.New("unzip info")
-var errorLog = logger.New("unzip error")
 
 // unzipCmd represents the unzip command
 var unzipCmd = &cobra.Command{
@@ -21,19 +18,19 @@ var unzipCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dryRun, err := cmd.Flags().GetBool("dryRun")
 		if err != nil {
-			errorLog.Printf("Error finding dryRun flag: %e", err)
+			log.Printf("Error finding dryRun flag: %e", err)
 			return
 		}
 
 		source, err := cmd.Flags().GetString("source")
 		if err != nil || source == "" {
-			downloadErrorLog.Println("Error: --source is required")
+			log.Println("Error: --source is required")
 			return
 		}
 
 		outDir, err := cmd.Flags().GetString("outDir")
 		if err != nil || outDir == "" {
-			downloadErrorLog.Println("Error: --outDir is required")
+			log.Println("Error: --outDir is required")
 			return
 		}
 
@@ -43,7 +40,7 @@ var unzipCmd = &cobra.Command{
 			DryRun:    &dryRun,
 		}
 
-		infoLog.Println("Unzipping files")
+		log.Println("Unzipping files")
 
 		unzipFiles(cfg)
 	},
@@ -53,12 +50,12 @@ func unzipFiles(cfg *unzip.Config) {
 	var filepaths []string
 	err := unzip.GetZipFilesFromSourceDir(cfg.SourceDir, &filepaths)
 	if err != nil {
-		errorLog.Fatalf("Unable to get zip files: %v", err)
+		log.Fatalf("Unable to get zip files: %v", err)
 	}
 
-	infoLog.Printf("Found %d zip files\n", len(filepaths))
+	log.Printf("Found %d zip files\n", len(filepaths))
 	for _, name := range filepaths {
-		infoLog.Println(name)
+		log.Println(name)
 	}
 
 	processCh := make(chan string)
@@ -79,7 +76,7 @@ func unzipFiles(cfg *unzip.Config) {
 		go func() {
 			defer wg.Done()
 			for zipFile := range processCh {
-				infoLog.Printf("unzipping file %s\n", zipFile)
+				log.Printf("unzipping file %s\n", zipFile)
 				err := unzip.UnzipFile(zipFile, cfg)
 				if err != nil {
 					errCh <- err
@@ -98,11 +95,11 @@ func unzipFiles(cfg *unzip.Config) {
 	for {
 		select {
 		case err := <-errCh:
-			errorLog.Println(err)
+			log.Println(err)
 		case data := <-resCh:
-			infoLog.Printf("file has been saved: %s\n", data)
+			log.Printf("file has been saved: %s\n", data)
 		case <-doneCh:
-			infoLog.Println("done")
+			log.Println("done")
 			os.Exit(0)
 		}
 	}

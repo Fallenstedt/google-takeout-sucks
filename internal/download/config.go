@@ -4,4 +4,5 @@ type Config struct {
 	DirectoryId *string
 	DryRun      *bool
 	OutDir      *string
+	AuthenitcationUrl string
 }
