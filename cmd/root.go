@@ -8,7 +8,8 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "takeout",
+	Use:   "google-takeout-sucks",
+	Aliases: []string{"takeout"},
 	Short: "Google takeout sucks",
 	Long:  `Get your massive zip files out of google drive because google takeout sucks.`,
 	// Uncomment the following line if your bare application
