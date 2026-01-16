@@ -2,6 +2,8 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/fallenstedt)
 
+[Homepage](https://google-takeout-sucks.fallenstedt.com/)
+
 A command-line tool for downloading Google Takeout exports from Google Drive.
 
 Google Takeout often splits exports into many ZIP files. Downloading them manually through a browser is slow, error-prone, and difficult to resume. This tool automates downloading all Takeout files directly from Google Drive.
