@@ -82,7 +82,7 @@ func downloadFiles(cmd *cobra.Command, cfg *download.Config) {
 	// Create workers to download files
 	for w := 1; w <= runtime.NumCPU(); w++ {
 		wg.Add(1)
-		go download.DownloadWorker(w, processCh, errCh, resCh, srv, cfg, &wg)
+		go download.DownloadWorker(w, processCh, errCh, resCh, srv, cfg, downloadInfoLog, &wg)
 	}
 
 	// Wait for all files to be downloaded and saved to disk
